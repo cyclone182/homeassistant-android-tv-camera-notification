@@ -1,0 +1,54 @@
+alias: Living Room TV Notification - Dog at Back Door
+description: ""
+trigger:
+  - type: occupied
+    platform: device
+    device_id: 854eaca891b935e28d4750bd296a72e0
+    entity_id: binary_sensor.zone_patio_patio_door_dog_occupancy
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+condition:
+  - type: is_not_open
+    condition: device
+    device_id: 0f1dad6f5fd1492ac6eb66c14c024bc1
+    entity_id: binary_sensor.patio_door_sensor
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  - condition: state
+    entity_id: media_player.sony_bravia_tv
+    state: "on"
+action:
+  - repeat:
+      while:
+        - condition: state
+          entity_id: binary_sensor.patio_door_sensor
+          state: "off"
+        - type: is_occupied
+          condition: device
+          device_id: 854eaca891b935e28d4750bd296a72e0
+          entity_id: binary_sensor.zone_patio_patio_door_dog_occupancy
+          domain: binary_sensor
+      sequence:
+        - service: notify.living_room_tv
+          data:
+            message: Dog at Backdoor
+            data:
+              duration: 15
+              position: center
+              fontsize: max
+              color: cyan
+              image:
+                path: /config/www/snapshots/patio_door_dog.jpg
+            title: Notice
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 30
+            milliseconds: 0
+mode: single
