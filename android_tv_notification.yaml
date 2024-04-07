@@ -1,4 +1,4 @@
-alias: Living Room TV Notification - Dog at Back Door
+alias: android_tv_notification
 description: ""
 trigger:
   - type: occupied
