@@ -1,4 +1,4 @@
-alias: MQTT Frigate Snapshot - Patio Door - Dog
+alias: mqtt_image_capture
 description: ""
 trigger:
   - platform: mqtt
