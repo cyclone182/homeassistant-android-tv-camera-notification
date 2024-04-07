@@ -1,0 +1,31 @@
+alias: MQTT Frigate Snapshot - Patio Door - Dog
+description: ""
+trigger:
+  - platform: mqtt
+    topic: frigate/events
+condition:
+  - condition: state
+    entity_id: binary_sensor.patio_door_sensor
+    state: "off"
+  - condition: template
+    value_template: "{{ trigger.payload_json['after']['camera'] == 'patio_frigate' }}"
+  - condition: template
+    value_template: "{{ trigger.payload_json['after']['label'] == 'dog' }}"
+  - condition: template
+    value_template: >-
+      {{ ( as_timestamp(now()) -
+      as_timestamp(state_attr('automation.mqtt_frigate_snapshot_patio_door_dog',
+      'last_triggered'))|float(0) ) > 5 }}
+action:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 0
+      milliseconds: 200
+  - service: shell_command.url_to_file
+    data_template:
+      url: >-
+        http://10.215.133.40:5000//api/events/{{trigger.payload_json['after']['id']}}/snapshot.jpg
+      to_file: /config/www/snapshots/patio_door_dog.jpg
+mode: queued
+max: 10
