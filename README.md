@@ -1,25 +1,50 @@
-# homeassistant-android-tv-camera-notification
-<b>This homeassistant automation sends a notification to your Android TV, containing a snapshot from your security cam. The automation is triggered if the object remains in a defined detection zone within the frame for a certain period of time.</b>
-<br>
-<br><img src="https://github.com/cyclone182/homeassistant-android-tv-camera-notification/blob/main/notification-example.jpg" width="300" />
-<img src="https://github.com/cyclone182/homeassistant-android-tv-camera-notification/blob/main/camera_zone.jpg" width="450" />
-<br>
-<br><b>Requirements for this automation:</b>
-<ol>
-<li>Notifications for Android TV / Fire TV integration already set up in Homeassistant. 
-<br>See https://www.home-assistant.io/integrations/nfandroidtv
-<li>Security cam feed already available to homeassistant to capture the snapshot, in this case using MQTT events.
-<br>In my case, I use Frigate to run object detection on rtsp streams out of my Unifi Protect security cams. Note that this requires the Frigate server and Frigate integration inside Homeassistant. In my case, I am running the Frigate server exterior to Homeassistant in an LXC container in Docker.
-<br>Note that if you want to trigger the automations based on a certain object detected, that entity will need to be available in Homeassistant. In this example, the automation is triggered when my dog is detected in an certain zone within the frame, for a certain period of time.
-<br>See here for Frigate documentation: https://github.com/blakeblackshear/frigate
-<li>MQTT server running as Homeassistant Add-On. This will be used to capture the camera image.</li>
-</ol>
-<br><b>Instructions:</b>
-<br><ol>
-<li>In Homeassistant, create an automation for capturing the image via MQTT. Copy the mqtt_image_capture.yaml file from this repository and save the automation. Note that you will have to edit the binary sensor, camera name, and label to fit your setup. You'll also need to edit the IP address of the Frigate server, and filepath to save the image.</li>
-<li>Next create another automation for triggering the actual TV notification. Copy the android_tv_notification.yaml file from this repository and save the automation. Note that you will have to edit the device ID's and binary sensor attributes. Also edit the filepath to the saved image. You can adjust the time which the object must remain in the detection zone before triggering (in my case it is 15 sec).</li>
-<li>Now test your automation!</li>
+# Home Assistant: Android TV Camera Notification
 
+An automation for **Home Assistant** that sends an image snapshot from your security camera directly to your **Android TV / Fire TV** when a detected object lingers inside a designated zone for a specified duration.
 
-  
-</ol>
+---
+
+## 📸 Preview
+
+<p align="center">
+  <img src="https://github.com/cyclone182/homeassistant-android-tv-camera-notification/blob/main/notification-example.jpg" alt="Android TV Notification Example" width="340" />
+  <img src="https://github.com/cyclone182/homeassistant-android-tv-camera-notification/blob/main/camera_zone.jpg" alt="Detection Zone Example" width="480" />
+</p>
+
+---
+
+## 📋 Prerequisites
+
+Ensure the following integrations and services are set up before proceeding:
+
+1. **[Notifications for Android TV / Fire TV](https://www.home-assistant.io/integrations/nfandroidtv)**
+   - Configured in Home Assistant and linked to your target TV.
+2. **[Frigate NVR](https://github.com/blakeblackshear/frigate) & Integration**
+   - Camera stream (e.g., RTSP) processed by Frigate for object and zone detection.
+   - Frigate integration installed in Home Assistant so object/zone binary sensors are exposed.
+3. **MQTT Broker**
+   - Mosquitto broker (or equivalent) connected to both Frigate and Home Assistant to handle event triggers and image capture.
+
+---
+
+## 🚀 Setup Instructions
+
+### 1. Image Capture Automation
+1. In Home Assistant, create a new automation and switch to **Edit in YAML**.
+2. Copy and paste the contents of [`mqtt_image_capture.yaml`](mqtt_image_capture.yaml).
+3. Customize the following fields for your setup:
+   - `binary_sensor` (zone entity)
+   - Camera name & object label
+   - Frigate server IP address / hostname
+   - Local file path to save the captured image
+
+### 2. TV Notification Automation
+1. Create a second automation and edit in YAML mode.
+2. Copy and paste the contents of [`android_tv_notification.yaml`](android_tv_notification.yaml).
+3. Customize the following fields:
+   - Target notification service (`notify.android_tv...`) / device IDs
+   - Binary sensor attributes and trigger delay (e.g., object remains in zone for `15s`)
+   - Snapshot image file path matching Step 1
+
+### 3. Test & Verify
+Trigger the camera zone by having the tracked object remain in frame past your configured duration threshold, then verify the notification overlay appears on your TV.
